@@ -10,17 +10,17 @@ if (EMSCRIPTEN)
     target_link_options(angles INTERFACE 
         -sFULL_ES3 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sWASM=1
     )
-    set (USE_ANGLE OFF)
+    set (ANGLES_USE_ANGLE OFF CACHE BOOL "" FORCE)
 else()
-    set (USE_ANGLE ON)
+    set (ANGLES_USE_ANGLE ON CACHE BOOL "" FORCE)
 
     # Cache target lib folder and extension for each platform
     # This is later used in the angles_copy_libs function
 
     # TODO: add more binaries. For now, only MacOS Silicon is supported
     if (APPLE)
-        if ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm64")
-            set(angles_LIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/arm64" CACHE STRING "" FORCE)
+        if ("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+            set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/arm64 CACHE STRING "" FORCE)
         else()
             message(FATAL_ERROR "No Angle libs are available for MacOS x86_64")
         endif()
@@ -38,9 +38,11 @@ endif()
 # Call this in the same CMakeLists.txt as the add_executable command for the
 # corresponding binary exe. If TARGET_NAME param is not set, it is automatically
 # set to the current PROJECT_NAME
-function(angles_copy_libs TARGET_NAME)
-    if (USE_ANGLE)
-        if (NOT TARGET_NAME)
+function(angles_copy_libs)
+    if (ANGLES_USE_ANGLE)
+        if (${ARGV0})
+            set(TARGET_NAME ${ARGV0})
+        else()
             set(TARGET_NAME ${PROJECT_NAME})
         endif()
 
@@ -49,10 +51,10 @@ function(angles_copy_libs TARGET_NAME)
             ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
             ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${angle_LIBS_DIR}/libEGL.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
+            ${angles_LIBS_DIR}/libEGL.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${angle_LIBS_DIR}/libGLESv2.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
+            ${angles_LIBS_DIR}/libGLESv2.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
         )
-        add_dependencies(${TARGET_NAME} angle_copy_libs-${TARGET_NAME})
+        add_dependencies(${TARGET_NAME} angles_copy_libs-${TARGET_NAME})
     endif()
 endfunction()
