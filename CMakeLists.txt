@@ -26,6 +26,9 @@ else()
         endif()
 
         set(angles_LIBS_EXT "dylib" CACHE STRING "" FORCE)
+
+        # Use metal backend on apple devices
+        set(ENV{ANGLE_DEFAULT_PLATFORM} "metal")
     endif()
 
     target_link_libraries(angles INTERFACE
