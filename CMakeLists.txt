@@ -17,7 +17,7 @@ else()
     # Cache target lib folder and extension for each platform
     # This is later used in the angles_copy_libs function
 
-    # TODO: add more binaries. For now, only MacOS Silicon is supported
+    # TODO: add more binaries. For now, only MacOS Silicon and Windows x64 are supported
     if (APPLE)
         if ("${SYS_PROCESSOR}" STREQUAL "ARM64")
             set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/arm64 CACHE STRING "" FORCE)
@@ -31,12 +31,15 @@ else()
         set(ENV{ANGLE_DEFAULT_PLATFORM} "metal")
     elseif(MSVC)
         if ("${SYS_PROCESSOR}" STREQUAL "ARM64")
-            set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/arm64 CACHE STRING "" FORCE)
+            message(FATAL_ERROR "No Angle libs are available for Windows ARM64")
+            # set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/arm64 CACHE STRING "" FORCE)
         else()
             set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/x64 CACHE STRING "" FORCE)
         endif()
 
         set(angles_LIBS_EXT "lib" CACHE STRING "" FORCE)
+    else()
+        message(FATAL_ERROR "Angles platform is not supported")
     endif()
 
     target_link_libraries(angles INTERFACE
@@ -60,14 +63,8 @@ function(angles_copy_libs)
         if (MSVC)
             add_custom_target(angles_copy_libs-${TARGET_NAME}
                 BYPRODUCTS
-                ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
-                ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
                 ${CMAKE_CURRENT_BINARY_DIR}/libEGL.dll
                 ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.dll
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${angles_LIBS_DIR}/libEGL.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${angles_LIBS_DIR}/libGLESv2.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libEGL.dll ${CMAKE_CURRENT_BINARY_DIR}/libEGL.dll
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
