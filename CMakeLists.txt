@@ -7,7 +7,7 @@ target_include_directories(angles INTERFACE include)
 
 if (EMSCRIPTEN)
     # Set Emscripten linker flags necessary to run full ES3 emulation in WebGL2
-    target_link_options(angles INTERFACE 
+    target_link_options(angles INTERFACE
         -sFULL_ES3 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sWASM=1
     )
     set (ANGLES_USE_ANGLE OFF CACHE BOOL "" FORCE)
@@ -61,25 +61,30 @@ function(angles_copy_libs)
         endif()
 
         if (MSVC)
-            add_custom_target(angles_copy_libs-${TARGET_NAME}
-                BYPRODUCTS
+            set(PRODUCTS
                 ${CMAKE_CURRENT_BINARY_DIR}/libEGL.dll
-                ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.dll
+                ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.dll)
+            add_custom_command(
+                OUTPUT ${PRODUCTS}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libEGL.dll ${CMAKE_CURRENT_BINARY_DIR}/libEGL.dll
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libGLESv2.dll ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.dll
             )
+            add_custom_target(angles_copy_libs-${TARGET_NAME} DEPENDS ${PRODUCTS})
         else()
-            add_custom_target(angles_copy_libs-${TARGET_NAME}
-                BYPRODUCTS
+            set(PRODUCTS
                 ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
                 ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
+            )
+            add_custom_command(
+                OUTPUT ${PRODUCTS}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libEGL.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libGLESv2.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
             )
+            add_custom_target(angles_copy_libs-${TARGET_NAME} DEPENDS ${PRODUCTS})
         endif()
 
         add_dependencies(${TARGET_NAME} angles_copy_libs-${TARGET_NAME})
