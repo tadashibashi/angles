@@ -61,32 +61,19 @@ function(angles_copy_libs)
         endif()
 
         if (MSVC)
-            set(PRODUCTS
-                ${CMAKE_CURRENT_BINARY_DIR}/libEGL.dll
-                ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.dll)
-            add_custom_command(
-                OUTPUT ${PRODUCTS}
+            execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libEGL.dll ${CMAKE_CURRENT_BINARY_DIR}/libEGL.dll
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libGLESv2.dll ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.dll
             )
-            add_custom_target(angles_copy_libs-${TARGET_NAME} DEPENDS ${PRODUCTS})
         else()
-            set(PRODUCTS
-                ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
-                ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
-            )
-            add_custom_command(
-                OUTPUT ${PRODUCTS}
+            execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libEGL.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libEGL.${angles_LIBS_EXT}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${angles_LIBS_DIR}/libGLESv2.${angles_LIBS_EXT} ${CMAKE_CURRENT_BINARY_DIR}/libGLESv2.${angles_LIBS_EXT}
             )
-            add_custom_target(angles_copy_libs-${TARGET_NAME} DEPENDS ${PRODUCTS})
         endif()
-
-        add_dependencies(${TARGET_NAME} angles_copy_libs-${TARGET_NAME})
     endif()
 endfunction()
