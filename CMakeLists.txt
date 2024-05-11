@@ -5,6 +5,10 @@ add_library(angles INTERFACE)
 
 target_include_directories(angles INTERFACE include)
 
+if (NOT ANGLES_SYSTEM_PROCESSOR)
+    set(ANGLES_SYSTEM_PROCESSOR "${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
 if (EMSCRIPTEN)
     # Set Emscripten linker flags necessary to run full ES3 emulation in WebGL2
     target_link_options(angles INTERFACE
@@ -13,7 +17,7 @@ if (EMSCRIPTEN)
     set (ANGLES_USE_ANGLE OFF CACHE BOOL "" FORCE)
 else()
     set (ANGLES_USE_ANGLE ON CACHE BOOL "" FORCE)
-    string(TOUPPER ${CMAKE_SYSTEM_PROCESSOR} SYS_PROCESSOR)
+    string(TOUPPER ${ANGLES_SYSTEM_PROCESSOR} SYS_PROCESSOR)
     # Cache target lib folder and extension for each platform
     # This is later used in the angles_copy_libs function
 
@@ -22,7 +26,7 @@ else()
         if ("${SYS_PROCESSOR}" STREQUAL "ARM64")
             set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/arm64 CACHE STRING "" FORCE)
         else()
-            message(FATAL_ERROR "No Angle libs are available for MacOS x86_64")
+            set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/x86_64 CACHE STRING "" FORCE)
         endif()
 
         set(angles_LIBS_EXT "dylib" CACHE STRING "" FORCE)
