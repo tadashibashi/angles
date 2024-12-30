@@ -21,10 +21,6 @@ elseif (ANDROID)
         GLESv2
     )
 elseif (IOS)
-    if (NOT SYS_PROCESSOR STREQUAL "ARM64")
-        message(FATAL_ERROR "No Angle libs in this repo are available for iOS platforms other than arm64")
-    endif()
-
     if (CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
         set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/ios/arm64-simulator CACHE STRING "" FORCE)
     else()
