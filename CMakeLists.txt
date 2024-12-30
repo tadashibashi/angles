@@ -16,7 +16,7 @@ if (EMSCRIPTEN)
     )
     set (ANGLES_USE_ANGLE OFF CACHE BOOL "" FORCE)
 elseif (ANDROID)
-    # Android already has support for GLESv2, recent devices even have an ANGLE backend
+    # Fall back to GLES3
     target_link_libraries(angles INTERFACE
         GLESv2
     )

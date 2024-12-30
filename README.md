@@ -41,13 +41,8 @@ The main angles header only includes ES3.0 for the sake of compatibility with We
 But other platforms may use higher versions, and this repo contains other version headers for convenience: 
 e.g. `#include <GLES3/gl32.h>`
 
-### Android
+### Mobile
 
-Android uses GLESv2 and requires no linkage to special ANGLE libs since recent devices 
-come pre-built with an ANGLE backend.
-
-### iOS
-
-iOS, for now, falls back to plain OpenGL ES3, even though it's deprecated.
-Simulators bug out and drop framerate tremendously, but hardware seems to be fine.
-Eventually, we should add an iOS ANGLE library to this repo.
+Android and iOS both fallback to OpenGL ES3. Ee should add linkage to pre-built ANGLE libraries at some point,
+especially since OpenGLES is deprecated on iOS.
+On an iOS simulator, performance drops significantly, but on hardware it appears to be fine.
