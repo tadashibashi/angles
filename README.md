@@ -8,6 +8,46 @@ without ANGLE.
 Intended to help make development builds convenient.
 It may be good to compile ANGLE from source for builds tailored for production.
 
-Current supported platforms:
-- MacOS 15 Silicon
+Development builds supported for:
+- macOS arm64/x86_64
+- Windows x64
 - Emscripten
+- iOS
+- Android
+
+## Usage
+
+```cmake
+# Link to the interface library
+# Relevent include directories and libraries are added to your exe/lib
+target_link_libraries(my_exe PRIVATE angles)
+
+# Call this to copy the relevant libraries into the current binary directory
+angles_copy_libs()
+```
+
+From C/C++
+```C++
+#include <angles.h>
+
+// Call OpenGL ES3 code here
+
+```
+
+## Notes
+
+### Angles Headers
+The main angles header only includes ES3.0 for the sake of compatibility with WebGL. 
+But other platforms may use higher versions, and this repo contains other version headers for convenience: 
+e.g. `#include <GLES3/gl32.h>`
+
+### Android
+
+Android uses GLESv2 and requires no linkage to special ANGLE libs since recent devices 
+come pre-built with an ANGLE backend.
+
+### iOS
+
+iOS, for now, falls back to plain OpenGL ES3, even though it's deprecated.
+Simulators bug out and drop framerate tremendously, but hardware seems to be fine.
+Eventually, we should add an iOS ANGLE library to this repo.
