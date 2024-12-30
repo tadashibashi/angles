@@ -15,15 +15,37 @@ if (EMSCRIPTEN)
         -sFULL_ES3 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sWASM=1
     )
     set (ANGLES_USE_ANGLE OFF CACHE BOOL "" FORCE)
+elseif (ANDROID)
+    # Android already has support for GLESv2, recent devices even have an ANGLE backend
+    target_link_libraries(angles INTERFACE
+        GLESv2
+    )
+elseif (IOS)
+    if (NOT SYS_PROCESSOR STREQUAL "ARM64")
+        message(FATAL_ERROR "No Angle libs in this repo are available for iOS platforms other than arm64")
+    endif()
+
+    if (CMAKE_OSX_SYSROOT MATCHES "iphonesimulator")
+        set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/ios/arm64-simulator CACHE STRING "" FORCE)
+    else()
+        set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/ios/arm64 CACHE STRING "" FORCE)
+    endif()
+
+    set(ENV{ANGLE_DEFAULT_PLATFORM} "metal")
+
+    target_link_libraries(angles INTERFACE
+        ${angles_LIBS_DIR}/libangle.a
+    )
 else()
+    # Desktop Platforms
     set (ANGLES_USE_ANGLE ON CACHE BOOL "" FORCE)
     string(TOUPPER ${ANGLES_SYSTEM_PROCESSOR} SYS_PROCESSOR)
     # Cache target lib folder and extension for each platform
     # This is later used in the angles_copy_libs function
 
-    # TODO: add more binaries. For now, only MacOS Silicon and Windows x64 are supported
+    # TODO: add more binaries. For now, only macOS and Windows x64 are supported
     if (APPLE)
-        if ("${SYS_PROCESSOR}" STREQUAL "ARM64")
+        if (SYS_PROCESSOR STREQUAL "ARM64")
             set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/arm64 CACHE STRING "" FORCE)
         else()
             set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/macos/x86_64 CACHE STRING "" FORCE)
@@ -35,7 +57,7 @@ else()
         set(ENV{ANGLE_DEFAULT_PLATFORM} "metal")
     elseif(MSVC)
         if ("${SYS_PROCESSOR}" STREQUAL "ARM64")
-            message(FATAL_ERROR "No Angle libs are available for Windows ARM64")
+            message(FATAL_ERROR "No Angle libs in this repo are available for Windows ARM64")
             # set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/arm64 CACHE STRING "" FORCE)
         else()
             set(angles_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/windows/x64 CACHE STRING "" FORCE)
